@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+
+# Claude Design handoff bundle (mockups/notes, not part of the shipped app)
+llm-chat/

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistant — Chat</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; background-color: var(--bg); color: var(--text); }
+  #root { height: 100%; background-color: var(--bg); color: var(--text); }
+  body {
+    margin: 0; font-family: var(--font-body); background-color: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased; transition: background-color .25s ease, color .25s ease;
+  }
+
+  :root {
+    --bg:            #fafafa;
+    --surface:       #ffffff;
+    --surface-muted: #f4f4f5;
+    --surface-dark:  #18181b;
+    --text:          #18181b;
+    --text-muted:    #71717a;
+    --border:        #e4e4e7;
+    --border-strong: #d4d4d8;
+    --accent:        #18181b;
+    --accent-hover:  #000000;
+    --accent-active: #000000;
+    --text-on-accent:#ffffff;
+    --focus-ring:    #18181b;
+    --accent-soft:   #f4f4f5;
+    --accent-line:   #d4d4d8;
+    --accent-ink:    #18181b;
+    --focus-ring-soft: rgba(24,24,27,.16);
+  }
+
+  body.theme-dark,
+  html.theme-dark {
+    color-scheme: dark;
+    --bg:            #0e0e10;
+    --whiteout:      #0e0e10;
+    --dandelion-floatie: #26262a;
+    --dirty-snow:    #3a3a40;
+    --more-than-a-week: #a1a1aa;
+    --caviar:        #fafafa;
+    --surface:       #18181b;
+    --surface-muted: #26262a;
+    --surface-dark:  #000000;
+    --text:          #fafafa;
+    --text-muted:    #a1a1aa;
+    --border:        #2c2c30;
+    --border-strong: #44444a;
+    --accent:        #fafafa;
+    --accent-hover:  #ffffff;
+    --accent-active: #ffffff;
+    --text-on-accent:#18181b;
+    --focus-ring:    #fafafa;
+    --accent-soft:   #26262a;
+    --accent-line:   #3a3a40;
+    --accent-ink:   #fafafa;
+    --focus-ring-soft: rgba(250,250,250,.22);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+    --shadow-md: 0 6px 22px rgba(0,0,0,.55);
+    --shadow-lg: 0 14px 44px rgba(0,0,0,.65);
+  }
+
+  /* App shell and control styles (copied from LLM Chat) */
+  /* ---------- App shell ---------- */
+  .app { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg); color: var(--text); }
+  .topbar {
+    display: flex; align-items: center; gap: 16px; padding: 0 20px; height: 60px; flex: none;
+    border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--text-on-accent); display: flex; align-items: center; justify-content: center; flex: none; }
+  .brand .name { font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg); letter-spacing: -0.01em; color: var(--text); }
+  .brand .name .ai { color: var(--text-muted); font-weight: 500; }
+
+  .topbar .spacer { flex: 1; }
+  .icon-toggle {
+    width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md);
+    cursor: pointer; color: var(--text-muted); transition: color .15s ease, background .15s ease, border-color .15s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  .icon-toggle:hover { color: var(--text); background: var(--surface-muted); }
+
+  .view { flex: 1; min-height: 0; }
+  .view-fade { animation: viewFade .24s cubic-bezier(.2,.8,.2,1) both; }
+
+  /* ---------- Shared control styling ---------- */
+  .ai-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+    border: none; background: transparent; color: var(--text-muted); border-radius: var(--radius-sm);
+    cursor: pointer; transition: background .15s ease, color .15s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  .ai-icon-btn:hover { background: var(--surface-muted); color: var(--text); }
+
+  .ai-shell:focus-within { border-color: var(--border-strong) !important; box-shadow: 0 0 0 3px var(--focus-ring-soft) !important; }
+
+  .ai-send-btn:not(:disabled):hover { background: var(--accent-hover) !important; }
+  .ai-send-btn:not(:disabled):active { transform: scale(.95); }
+
+  .ai-model-trigger {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .ai-model-trigger:hover { background: var(--surface-muted) !important; color: var(--text) !important; }
+  .ai-menu { animation: menuPop .16s cubic-bezier(.2,.8,.2,1); transform-origin: bottom left; }
+  .ai-menu-item:hover { background: var(--surface-muted) !important; }
+  .ai-model-label { animation: modelSwap .2s cubic-bezier(.2,.8,.2,1) both; }
+
+  .ai-caret { display: inline-block; width: 7px; height: 1.05em; background: var(--text); margin-left: 2px; border-radius: 1px; vertical-align: text-bottom; animation: caretBlink 1.05s steps(1) infinite; }
+
+  .chat-newbtn:hover, .chat-conv:hover, .chat-suggest:hover { background: var(--surface-muted) !important; }
+  .chat-suggest:hover { border-color: var(--border-strong) !important; }
+  .chat-suggest:disabled:hover { background: var(--surface) !important; }
+  .chat-newbtn, .chat-suggest { white-space: nowrap; }
+  .msg-actions .ai-icon-btn { width: 30px; height: 30px; }
+  .chat-conv-delete { opacity: 0; background: var(--surface) !important; border: 1px solid var(--border); }
+  .chat-conv-row:hover .chat-conv-delete, .chat-conv-delete:focus-visible { opacity: 1; }
+  .chat-conv-delete:hover { color: var(--text) !important; background: var(--surface-muted) !important; }
+
+  /* thin scrollbars */
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+  *::-webkit-scrollbar-thumb:hover { background: var(--border-strong); background-clip: padding-box; }
+
+  textarea::placeholder { color: var(--text-muted); opacity: .9; }
+
+  @keyframes hlBlink { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+  @keyframes caretBlink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+  @keyframes modelSwap { from { transform: translateY(-4px); } to { transform: none; } }
+  @keyframes menuPop { from { opacity: 0; transform: scale(.97) translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes viewFade { from { transform: translateY(7px); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; } }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="ai-input.jsx"></script>
+  <script type="text/babel" src="chat.jsx"></script>
+
+  <script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "dark": true,
+  "inputVariant": "stacked",
+  "radius": 28,
+  "accentOnModel": true,
+  "showAttach": true,
+  "placeholder": "Ask anything…"
+} /*EDITMODE-END*/;
+
+function normalizeModels(raw = []) {
+  return raw.map((m) => {
+    if (!m) return null;
+    if (typeof m === "string") return { name: m, note: "" };
+    const name = m.name || m.model || "";
+    const note = m.note || (m.size ? `${Math.round(m.size / 1e6)} MB` : "") || "Ollama model";
+    return { name, note, brand: m.brand || "ollama" };
+  }).filter(Boolean);
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [model, setModel] = useState(null);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [modelsLoading, setModelsLoading] = useState(true);
+  const [modelsError, setModelsError] = useState(null);
+
+  useEffect(() => {
+    const isDark = !!t.dark;
+    document.body.classList.toggle("theme-dark", isDark);
+    document.documentElement.classList.toggle("theme-dark", isDark);
+  }, [t.dark]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setModelsLoading(true);
+    fetch("/api/models")
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (cancelled) return;
+        if (!ok) throw new Error(data.error || "Could not load models");
+        setAvailableModels(normalizeModels(data.models || []));
+        setModelsError(null);
+      })
+      .catch((err) => { if (!cancelled) setModelsError(err.message || "Could not reach Ollama"); })
+      .finally(() => { if (!cancelled) setModelsLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!availableModels.length) return;
+    setModel((current) => (current && availableModels.some((m) => m.name === current)) ? current : availableModels[0].name);
+  }, [availableModels]);
+
+  return (
+    <div className="app">
+          <header className="topbar">
+            <div className="brand">
+              <span className="mark">
+                <Icon name="sparkles" size={18} color="var(--text-on-accent)" />
+              </span>
+              <span className="name">ChatLLM</span>
+            </div>
+
+            <div className="spacer"></div>
+
+            <button className="icon-toggle" onClick={() => setTweak("dark", !t.dark)} aria-label="Toggle theme" aria-pressed={t.dark} title={t.dark ? "Switch to light" : "Switch to dark"}>
+              <Icon name={t.dark ? "moon" : "sun"} size={18} />
+            </button>
+          </header>
+
+          <main className="view">
+            <div className="view-fade" style={{ height: "100%" }}>
+              <ChatView model={model} onModel={setModel} tweaks={t} models={availableModels} modelsLoading={modelsLoading} modelsError={modelsError} />
+            </div>
+          </main>
+
+          <TweaksPanel>
+            <TweakSection label="Theme" />
+            <TweakToggle label="Dark mode" value={t.dark} onChange={(v) => setTweak("dark", v)} />
+            <TweakSection label="Composer" />
+            <TweakRadio label="Layout" value={t.inputVariant} options={["stacked", "inline", "pill"]} onChange={(v) => setTweak("inputVariant", v)} />
+            <TweakSlider label="Corner radius" value={t.radius} min={6} max={28} step={1} unit="px" onChange={(v) => setTweak("radius", v)} />
+            <TweakToggle label="Highlight active model" value={t.accentOnModel} onChange={(v) => setTweak("accentOnModel", v)} />
+            <TweakToggle label="Show attach button" value={t.showAttach} onChange={(v) => setTweak("showAttach", v)} />
+            <TweakText label="Placeholder" value={t.placeholder} onChange={(v) => setTweak("placeholder", v)} />
+          </TweaksPanel>
+        </div>);
+
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

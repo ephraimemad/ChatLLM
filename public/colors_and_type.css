@@ -1,0 +1,138 @@
+/* ============================================================
+   HelpLink — Design Tokens: Color & Type
+   Refined minimalism: quiet neutral canvas, one electric lime
+   accent (Mindaro), near-black type. Implement against tokens,
+   never raw hex.
+   ============================================================ */
+
+/* ---- Fonts ----
+   Clash Display  → Fontshare (display / headings)
+   Hanken Grotesk → Google Fonts (body / UI)
+   JetBrains Mono → Google Fonts (code / dev surfaces)
+   Loaded via CDN below. If you need offline files, drop them
+   in /fonts and swap these @imports for @font-face rules. */
+@import url("https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400,500,600&display=swap");
+
+:root {
+  /* ---------- Raw palette ---------- */
+  --whiteout:           #fbfbfb;
+  --dandelion-floatie:  #eae8ec;
+  --mindaro:            #dcf365;
+  --dirty-snow:         #cbcdd5;
+  --more-than-a-week:   #8d8d8f;
+  --caviar:             #2c2c2e;
+
+  /* ---------- Surfaces ---------- */
+  --bg:            var(--whiteout);
+  --surface:       #ffffff;            /* cards lift slightly above the canvas */
+  --surface-muted: var(--dandelion-floatie);
+  --surface-dark:  var(--caviar);      /* dark sections, widget header */
+
+  /* ---------- Text ---------- */
+  --text:           var(--caviar);
+  --text-muted:     var(--more-than-a-week);
+  --text-on-dark:   var(--whiteout);
+  --text-on-accent: var(--caviar);     /* dark text on Mindaro for contrast */
+
+  /* ---------- Lines ---------- */
+  --border:        var(--dirty-snow);
+  --border-strong: var(--more-than-a-week);
+
+  /* ---------- Accent ---------- */
+  --accent:        var(--mindaro);
+  --accent-hover:  #cde94d;            /* slightly deeper lime */
+  --accent-active: #bcd93e;
+  --focus-ring:    var(--mindaro);
+
+  /* ---------- Feedback (neutral-leaning) ---------- */
+  --success: #7bbf5a;
+  --warning: #e0b341;
+  --danger:  #d96a5b;
+
+  /* ---------- Radius ---------- */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-pill: 9999px;
+
+  /* ---------- Spacing scale (4px base) ---------- */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* ---------- Elevation — soft, low-contrast ---------- */
+  --shadow-sm: 0 1px 2px rgba(44,44,46,.06);
+  --shadow-md: 0 4px 16px rgba(44,44,46,.08);
+  --shadow-lg: 0 12px 40px rgba(44,44,46,.12);
+
+  /* ---------- Type families ---------- */
+  --font-display: "Clash Display", "Hanken Grotesk", system-ui, sans-serif;
+  --font-body:    "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* ---------- Type scale (rem) ---------- */
+  --text-xs:   0.75rem;   /* captions, labels        */
+  --text-sm:   0.875rem;  /* secondary text, meta    */
+  --text-base: 1rem;      /* body                    */
+  --text-lg:   1.125rem;  /* lead paragraph          */
+  --text-xl:   1.25rem;   /* card titles             */
+  --text-2xl:  1.5rem;    /* section headings        */
+  --text-3xl:  1.875rem;  /* page titles             */
+  --text-4xl:  2.25rem;   /* hero subhead            */
+  --text-5xl:  3rem;      /* hero headline (display) */
+
+  /* ---------- Weights ---------- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ---------- Line heights ---------- */
+  --leading-display: 1.15;
+  --leading-body:    1.5;
+}
+
+/* ============================================================
+   Semantic element styles — opt-in via class to avoid
+   stomping host pages. Apply .hl-prose to a container or use
+   the .hl-* classes directly.
+   ============================================================ */
+
+.hl-display,
+.hl-h1, .hl-h2, .hl-h3 {
+  font-family: var(--font-display);
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: var(--leading-display);
+  font-weight: var(--weight-semibold);
+  margin: 0;
+}
+.hl-display { font-size: var(--text-5xl); font-weight: var(--weight-bold); }
+.hl-h1      { font-size: var(--text-3xl); }
+.hl-h2      { font-size: var(--text-2xl); }
+.hl-h3      { font-size: var(--text-xl); }
+
+.hl-body,
+.hl-p {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--text);
+  font-weight: var(--weight-regular);
+  margin: 0;
+}
+.hl-lead { font-size: var(--text-lg); color: var(--text); }
+.hl-meta { font-size: var(--text-sm); color: var(--text-muted); }
+.hl-label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.hl-code,
+code, kbd, samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
