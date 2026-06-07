@@ -1,4 +1,4 @@
-# llm-chat
+# ChatLLM
 
 A local web chat UI for [Ollama](https://ollama.com) — pick a model, chat, attach images or
 text/code files, and keep your conversation history. Launches with one command.
